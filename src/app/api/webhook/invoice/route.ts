@@ -10,7 +10,10 @@ export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
         const supabase = createClient();
-        const {data, error} = await supabase.from('transactions').update("status", body.status).eq('code', body.external_id);
+        console.log(body.external_id);
+        console.log(body.status);
+        const { error } = await supabase.from('transactions').update({"status": body.status}).eq('code', body.external_id);
+        const {data:transaction, error: errorTransaction} = await supabase.from('transactions').select().eq('code', body.external_id).single();
         if(error){
             const response: ResponseData<null> = {
                 success: false,
@@ -19,10 +22,18 @@ export async function POST(req: NextRequest) {
             };
             return NextResponse.json(response, { status: 500 });
         } else {
+            if(errorTransaction){
+                const response: ResponseData<null> = {
+                    success: false,
+                    message: JSON.stringify(errorTransaction.message) ?? '',
+                    data: null,
+                };
+                return NextResponse.json(response, { status: 500 });
+            }
             const response: ResponseData<null> = {
                 success: true,
                 message: 'OK',
-                data: data,
+                data: transaction,
             };
             return NextResponse.json(response, { status: 200 });
         }
