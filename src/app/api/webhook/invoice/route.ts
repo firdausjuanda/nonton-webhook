@@ -6,11 +6,11 @@ export async function GET() {
     return NextResponse.json("Welcome to Nonton API");
 }
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
     try {
-        let body = await req.json();
-        let supabase = createClient();
-        let {data, error} = await supabase.from('transactions').update("status", body.status).eq('code', body.external_id);
+        const body = await req.json();
+        const supabase = createClient();
+        const {data, error} = await supabase.from('transactions').update("status", body.status).eq('code', body.external_id);
         if(error){
             const response: ResponseData<null> = {
                 success: false,

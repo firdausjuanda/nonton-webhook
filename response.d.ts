@@ -1,4 +1,4 @@
-export type ResponseData<T = any> = {
+export type ResponseData<T> = {
     success: boolean,
     message: string,
     data: T,
