@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json(response, { status: 500 });
         } else {
             const response: ResponseData<null> = {
-                success: false,
+                success: true,
                 message: 'OK',
                 data: data,
             };
