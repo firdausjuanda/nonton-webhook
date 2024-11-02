@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import axios from "axios";
-import { google } from "googleapis";
+import { getAccessToken } from "../../../../../utils/google/oauth";
+import ErrorHandler from "../../../../../utils/common/error-handler";
 
 interface NotificationPayload {
     message: {
@@ -27,18 +28,7 @@ interface NotificationPayload {
     };
   }
 
-async function getAccessToken() {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: process.env.GOOGLE_CLIENT_EMAIL, // Store your client email in environment variables
-      private_key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, '\n'), // Store your private key in environment variables
-    },
-    scopes: ["https://www.googleapis.com/auth/firebase.messaging"],
-  });
 
-  const accessToken = await auth.getAccessToken();
-  return accessToken;
-}
 
 export async function GET() {
   return NextResponse.json("Welcome to Nonton API for FCM");
@@ -80,35 +70,6 @@ export async function POST(req: NextRequest) {
 
     return res;
   } catch (error) {
-    // console.error("Error sending notification:", error.response?.data || error.message);
-    if (axios.isAxiosError(error)) {
-        console.error("Axios error:", error.message);
-        // Access additional properties like error.response if needed
-        return NextResponse.json(
-          {
-            success: false,
-            message: error.response?.data?.error?.message || "Error sending notification",
-          },
-          { status: 500 }
-        );
-    } else if (error instanceof Error) {
-        console.error("General error:", error.message);
-        return NextResponse.json(
-          {
-            success: false,
-            message: error || "Error sending notification",
-          },
-          { status: 500 }
-        );
-    } else {
-        console.error("Unexpected error:", error);
-        return NextResponse.json(
-          {
-            success: false,
-            message: error || "Error sending notification",
-          },
-          { status: 500 }
-        );
-      }
+    return ErrorHandler(error, "Error sending notification");
   }
 }
