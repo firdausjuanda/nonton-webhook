@@ -2,6 +2,31 @@ import { NextResponse, NextRequest } from "next/server";
 import axios from "axios";
 import { google } from "googleapis";
 
+interface NotificationPayload {
+    message: {
+      topic?: string;
+      token?: string;
+      notification: {
+        title: string;
+        body: string;
+      };
+      data?: any;
+      android?: {
+        notification: {
+          click_action: string;
+          body: string;
+        };
+      };
+      apns?: {
+        payload: {
+          aps: {
+            category: string;
+          };
+        };
+      };
+    };
+  }
+
 async function getAccessToken() {
   const auth = new google.auth.GoogleAuth({
     credentials: {
@@ -20,38 +45,13 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { fcmToken, title, body, topic, data } = await req.json();
+  const payload: NotificationPayload = await req.json();
 
-  if (!title || !body) {
+  if (!payload.message.notification.body || !payload.message.notification.title) {
     return NextResponse.json(
       { success: false, message: "Missing required fields." },
       { status: 400 }
     );
-  }
-  let payload;
-
-  if(topic){
-    payload = {
-        message: {
-          topic: topic,
-          notification: {
-            title,
-            body,
-          },
-          data: data
-        },
-      };
-  } else {
-    payload = {
-        message: {
-          token: fcmToken,
-          notification: {
-            title,
-            body,
-          },
-          data: data
-        },
-      };
   }
 
   try {
@@ -67,10 +67,18 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    return NextResponse.json({
+    // Create the response object
+    const res = NextResponse.json({
       success: true,
       data: response.data,
     });
+
+    // Set CORS headers to allow all origins
+    res.headers.set("Access-Control-Allow-Origin", "*"); // Allow all origins
+    res.headers.set("Access-Control-Allow-Methods", "POST"); // Allow methods
+    res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Allow headers
+
+    return res;
   } catch (error) {
     // console.error("Error sending notification:", error.response?.data || error.message);
     if (axios.isAxiosError(error)) {
