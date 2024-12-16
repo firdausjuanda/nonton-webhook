@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import cron from "../../utils/common/cron";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -17,12 +18,16 @@ export const metadata: Metadata = {
   title: "Nonton API",
   description: "Welcome to Nonton API",
 };
-
+let cronInitialized = false;
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  if (!cronInitialized) {
+    cron()
+    cronInitialized = true;
+  }
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
