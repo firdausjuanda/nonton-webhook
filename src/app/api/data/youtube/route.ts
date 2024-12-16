@@ -1,7 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getAccessToken } from "../../../../../utils/google/oauth";
 import axios from "axios";
-import { createClient } from "../../../../../utils/supabase/server";
 import { VideoData } from "./type";
 import { parseDuration, upsertYoutubeVideos } from "../../../../../functions/videos";
 
