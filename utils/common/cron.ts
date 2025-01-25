@@ -14,6 +14,7 @@ export default function cron () {
     isCronInitialized= true
     updateYouTubeTrends(); 
     dailyNotifyUser();  
+    dailyUpdateCurrency();  
 }
 
 function updateYouTubeTrends(){
@@ -46,6 +47,26 @@ function dailyNotifyUser(){
                 await notifyTrends();
 
             } catch (e) {
+                if(axios.isAxiosError(e)){
+                    const msg = e.response?.data?.error?.message;
+                    console.log(`Error: ${msg ?? "Something went wrong"}`)
+                }
+            }
+        }
+    });
+}
+
+function dailyUpdateCurrency(){
+    nodeCron.schedule("* * * * *", async () => {
+        console.log("Cron job dailyUpdateCurrency triggered.... status: ", isCronInitialized);
+        if(isCronInitialized){
+            console.log("Cron job dailyUpdateCurrency running....");
+            try {
+                const response = await axios.get(`${url}/api/data/currency`, {headers: {Authorization: `Bearer ${process.env.CRON_SECRET}`}});
+                console.log("API dailyUpdateCurrency Response:", response.data);
+
+            } catch (e) {
+                console.log(e);
                 if(axios.isAxiosError(e)){
                     const msg = e.response?.data?.error?.message;
                     console.log(`Error: ${msg ?? "Something went wrong"}`)
