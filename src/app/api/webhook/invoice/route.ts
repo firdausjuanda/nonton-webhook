@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "../../../../../utils/supabase/server";
-import { ResponseData } from "../../../../../response";
+// import { ResponseData } from "../../../../../response";
 
 const RUMAHSEKOLAH_PREFIXES = ["RS-PRO-", "RS-SCH-"];
 
