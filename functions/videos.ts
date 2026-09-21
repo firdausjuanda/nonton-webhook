@@ -81,3 +81,42 @@ export default async function notifyTrends () {
         console.log(error)
     }
 } 
+
+export const upsertYoutubeVideos = async (videos: VideoData[]) => {
+    const payload:VideoData[] = [];
+    if(videos.length > 0) {
+      for(const video of videos){
+        if(video.id !== undefined){
+          payload.push({
+            videoId: video.id,
+            title: video.title,
+            duration: video.duration,
+            thumbnail: video.thumbnail,
+            publishedAt: video.publishedAt,
+            channelId: video.channelId,
+            channelTitle: video.channelTitle,
+            categoryId: video.categoryId,
+            tags: video.tags,
+            type: video.type,
+            currentlyCampaigned: video.currentlyCampaigned,
+          })
+        }
+      }
+    } else {
+      return {data: null, error: null};
+    }
+    // console.log("upserting videos...", payload)
+    const supabase = createClient()
+    return await supabase.from("youtube_videos").upsert(payload, 
+      { 
+        onConflict: 'videoId', 
+        ignoreDuplicates: false
+      }
+    );
+  }
+
+  export function parseDuration(duration: string): number {
+    const parsed = parseISO8601Duration.parse(duration);
+    const minutes = (parsed.minutes || 0) + (parsed.hours || 0) * 60 + (parsed.days || 0) * 1440;
+    return minutes;
+  }
