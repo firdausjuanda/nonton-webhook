@@ -1,10 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getAccessToken } from "../../../../../utils/google/oauth";
 import axios from "axios";
-import { createClient } from "../../../../../utils/supabase/server";
 import { VideoData } from "./type";
 import { upsertYoutubeVideos, parseDuration } from "../../../../../functions/videos";
-import parseISO8601Duration  from 'iso8601-duration';
 
 export async function GET(req: NextRequest) {
     if (req.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
